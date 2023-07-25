@@ -16,7 +16,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +40,12 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 builder.Services.AddDbContext<CourseDBContext>(opt=>opt.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<GroupEditDtoValidator>();
+builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
+{
+    opt.Password.RequireUppercase = false;
+    opt.Password.RequireNonAlphanumeric = false;
+    opt.Password.RequiredLength = 8;
+}).AddDefaultTokenProviders().AddEntityFrameworkStores<CourseDBContext>();
 builder.Services.AddAuthentication(opt =>
 {
     opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -46,17 +55,12 @@ builder.Services.AddAuthentication(opt =>
 {
     opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        ValidIssuer = "https://localhost:7198/",
-        ValidAudience = "https://localhost:7198/",
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes("my super secret key is here"))
+        ValidIssuer = builder.Configuration.GetSection("JWT:Issuer").Value,
+        ValidAudience = builder.Configuration.GetSection("JWT:Audience").Value,
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JWT:Secret").Value))
     };
 });
-builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
-{
-    opt.Password.RequireUppercase= false;
-    opt.Password.RequireNonAlphanumeric = false;
-    opt.Password.RequiredLength = 8;
-}).AddDefaultTokenProviders().AddEntityFrameworkStores<CourseDBContext>();
+
 
 builder.Services.AddScoped<IGroupRepository,GroupRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();

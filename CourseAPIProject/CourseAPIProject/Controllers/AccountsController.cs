@@ -16,11 +16,13 @@ namespace CourseAPIProject.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public AccountsController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager)
+        public AccountsController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, IConfiguration configuration)
         {
             _roleManager = roleManager;
             _userManager = userManager;
+            _configuration = configuration;
         }
         //[HttpGet]
         //public async Task<IActionResult> CreateRole()
@@ -61,16 +63,15 @@ namespace CourseAPIProject.Controllers
             var roles = (_userManager.GetRolesAsync(admin).Result).Select(x=> new Claim(ClaimTypes.Role,x)).ToList();
             claims.AddRange(roles);
 
-            string secret = "my super secret key is here";
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secret));
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("JWT:Secret").Value));
             var creds=new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var token = new JwtSecurityToken(
                 signingCredentials:creds,
                 claims:claims,
                 expires: DateTime.UtcNow.AddDays(3),
-                issuer: "https://localhost:7198/",
-                audience: "https://localhost:7198/"
+                issuer: _configuration.GetSection("JWT:Issuer").Value,
+                audience: _configuration.GetSection("JWT:Audience").Value
                 );
             string tokenstr=new JwtSecurityTokenHandler().WriteToken(token);
             return Ok(new { token=tokenstr });
