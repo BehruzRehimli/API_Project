@@ -15,6 +15,6 @@ namespace CourseAPIProject.Service.Intefaces
         void Delete(int id);
         GroupGetDto GetById(int id);
         List<GroupGetAllDto> GetAll();
-
+        void Edit(int id, GroupEditDto dto);
     }
 }

@@ -37,5 +37,11 @@ namespace CourseAPIProject.Controllers
         {
             return _groupService.GetAll();
         }
+        [HttpPut("{id}")]
+        public ActionResult Edit(int id,GroupEditDto dto)
+        {
+            _groupService.Edit(id, dto);
+            return NoContent();
+        }
     }
 }

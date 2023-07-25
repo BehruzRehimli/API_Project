@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace CourseAPIProject.Service.Dtos.Student
 {
-    public class StudentCreateDto
+    public class StudentEditDto
     {
         public string FullName { get; set; }
-        public decimal Point { get; set; }
         public int Age { get; set; }
+        public decimal Point { get; set; }
         public int GroupId { get; set; }
     }
-    public class StudentCreateValidator : AbstractValidator<StudentCreateDto>
+    public class StudentEditDtoValidator : AbstractValidator<StudentEditDto>
     {
-        public StudentCreateValidator()
+        public StudentEditDtoValidator()
         {
-            RuleFor(x => x.FullName).NotNull().MaximumLength(100);
-            RuleFor(x => x.Point).GreaterThanOrEqualTo(0).LessThanOrEqualTo(100);
-            RuleFor(x => x.GroupId).GreaterThan(0);
+            RuleFor(x => x.FullName).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.Point).LessThanOrEqualTo(100).GreaterThanOrEqualTo(0);
+            RuleFor(x=>x.GroupId).GreaterThan(0);
             RuleFor(x => x.Age).GreaterThan(0);
         }
     }

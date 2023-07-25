@@ -37,5 +37,51 @@ namespace CourseAPIProject.Service.Implemantations
             _studentRepository.Commit();
             return _mapper.Map<CreateResultDto>(student);
         }
+
+        public void Delete(int id)
+        {
+            if (!_studentRepository.IsExsist(x=>x.Id==id))
+            {
+                throw new RestException(System.Net.HttpStatusCode.NotFound, $"There is no Student in {id} id!");
+            }
+            Student student=_studentRepository.Find(x=>x.Id==id);
+            _studentRepository.Remove(student);
+            _studentRepository.Commit();
+        }
+
+        public void Edit(int id, StudentEditDto dto)
+        {
+            if (!_studentRepository.IsExsist(x => x.Id == id))
+            {
+                throw new RestException(System.Net.HttpStatusCode.NotFound, $"There is no Student in {id} id!");
+            }
+            Student student = _studentRepository.Find(x => x.Id == id, "Group");
+            if (student.GroupId!=dto.GroupId && !_groupRepository.IsExsist(x=>x.Id==dto.GroupId))
+            {
+                throw new RestException(System.Net.HttpStatusCode.BadRequest, $"There is no Group in {dto.GroupId} id!");
+            }
+            student.FullName= dto.FullName;
+            student.Age= dto.Age;
+            student.Point=dto.Point;
+            student.GroupId= dto.GroupId;
+            _studentRepository.Commit();
+        }
+
+        public List<StudentGetAllDto> GetAll()
+        {
+            List<Student> students=_studentRepository.Get(x=>true,"Group").ToList();
+            return _mapper.Map<List<StudentGetAllDto>>(students);
+        }
+
+        public StudentGetDto GetById(int id)
+        {
+            if (!_studentRepository.IsExsist(x => x.Id == id))
+            {
+                throw new RestException(System.Net.HttpStatusCode.NotFound, $"There is no Student in {id} id!");
+            }
+            Student student = _studentRepository.Find(x => x.Id == id, "Group");
+            return _mapper.Map<StudentGetDto>(student);
+
+        }
     }
 }

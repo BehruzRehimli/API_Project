@@ -11,7 +11,7 @@ namespace CourseAPIProject.Data.Entities
         public int Id { get; set; }
         public int GroupId { get; set; }
         public string FullName { get; set; }
-        public byte Age { get; set; }
+        public int Age { get; set; }
         public decimal Point { get; set; }
         public Group Group { get; set; }
     }

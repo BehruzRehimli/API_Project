@@ -1,16 +1,23 @@
 
+using CourseAPIProject.Core.Entities;
 using CourseAPIProject.Core.Repositories;
 using CourseAPIProject.Data;
 using CourseAPIProject.Data.Repositories;
 using CourseAPIProject.Middlewares;
+using CourseAPIProject.Service.Dtos.Group;
 using CourseAPIProject.Service.Dtos.Student;
 using CourseAPIProject.Service.Exceptions;
 using CourseAPIProject.Service.Implemantations;
 using CourseAPIProject.Service.Intefaces;
 using CourseAPIProject.Service.Profiles;
 using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +35,28 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
     };
 });
 builder.Services.AddDbContext<CourseDBContext>(opt=>opt.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-builder.Services.AddValidatorsFromAssemblyContaining<StudentCreateValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<GroupEditDtoValidator>();
+builder.Services.AddAuthentication(opt =>
+{
+    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(opt =>
+{
+    opt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidIssuer = "https://localhost:7198/",
+        ValidAudience = "https://localhost:7198/",
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes("my super secret key is here"))
+    };
+});
+builder.Services.AddIdentity<AppUser, IdentityRole>(opt =>
+{
+    opt.Password.RequireUppercase= false;
+    opt.Password.RequireNonAlphanumeric = false;
+    opt.Password.RequiredLength = 8;
+}).AddDefaultTokenProviders().AddEntityFrameworkStores<CourseDBContext>();
 
 builder.Services.AddScoped<IGroupRepository,GroupRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
@@ -51,6 +79,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

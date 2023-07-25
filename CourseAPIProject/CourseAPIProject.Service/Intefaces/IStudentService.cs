@@ -1,4 +1,5 @@
 ﻿using CourseAPIProject.Service.Dtos.Common;
+using CourseAPIProject.Service.Dtos.Group;
 using CourseAPIProject.Service.Dtos.Student;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,10 @@ namespace CourseAPIProject.Service.Intefaces
     public interface IStudentService
     {
         CreateResultDto Create(StudentCreateDto dto);
-
+        void Delete(int id);
+        StudentGetDto GetById(int id);
+        List<StudentGetAllDto> GetAll();
+        void Edit(int id, StudentEditDto dto);
 
     }
 }

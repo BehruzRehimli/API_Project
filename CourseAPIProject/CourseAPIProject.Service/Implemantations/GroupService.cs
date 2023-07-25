@@ -30,6 +30,7 @@ namespace CourseAPIProject.Service.Implemantations
             {
                 throw new RestException(System.Net.HttpStatusCode.BadRequest, "Name", $"Name already exsists {dto.Name}");
             }
+
             Group group=_mapper.Map<Group>(dto);
             _groupRepository.Add(group);
             _groupRepository.Commit();
@@ -43,6 +44,22 @@ namespace CourseAPIProject.Service.Implemantations
                 throw new RestException(System.Net.HttpStatusCode.NotFound, $"Group can't find {id} id!");
             }
             _groupRepository.Remove(_groupRepository.Find(x => x.Id == id));
+            _groupRepository.Commit();
+        }
+
+        public void Edit(int id, GroupEditDto dto)
+        {
+            if (!_groupRepository.IsExsist(x => x.Id == id))
+            {
+                throw new RestException(System.Net.HttpStatusCode.NotFound, $"Group can't find {id} id!");
+            }
+            Group group = _groupRepository.Find(x => x.Id == id);
+            if (_groupRepository.IsExsist(x => x.Name == dto.Name && x.Id !=group.Id))
+            {
+                throw new RestException(System.Net.HttpStatusCode.BadRequest, "Name", $"Name already exsists {dto.Name}");
+            }
+            group.Name = dto.Name;
+            group.MaxStudentCount= dto.MaxStudentCount;
             _groupRepository.Commit();
         }
 

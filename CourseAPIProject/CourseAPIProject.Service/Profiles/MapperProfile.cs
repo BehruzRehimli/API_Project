@@ -17,6 +17,9 @@ namespace CourseAPIProject.Service.Profiles
         {
             CreateMap<Group,StudentGetGroup>();
             CreateMap<Student, StudentGetDto>();
+            CreateMap<Student, StudentGetAllDto>();
+            CreateMap<Group,StudentGetAllGroup>();
+            CreateMap<Group, StudentGetGroup>();
             CreateMap<GroupCreateDto, Group>();
             CreateMap<StudentCreateDto, Student>();
             CreateMap<Group, GroupGetDto>();
