@@ -32,6 +32,11 @@ namespace CourseAPIProject.Service.Implemantations
             {
                 throw new RestException(System.Net.HttpStatusCode.BadRequest, "GroupId", $"There is no Group in {dto.GroupId} id!");
             }
+            Group group = _groupRepository.Find(x => x.Id == dto.GroupId,"Students");
+            if (group.Students.Count>=group.MaxStudentCount)
+            {
+                throw new RestException(System.Net.HttpStatusCode.BadRequest, "GroupId", $"{group.Name} group is full!");
+            }
             Student student = _mapper.Map<Student>(dto);
             _studentRepository.Add(student);
             _studentRepository.Commit();
@@ -59,6 +64,11 @@ namespace CourseAPIProject.Service.Implemantations
             if (student.GroupId!=dto.GroupId && !_groupRepository.IsExsist(x=>x.Id==dto.GroupId))
             {
                 throw new RestException(System.Net.HttpStatusCode.BadRequest, $"There is no Group in {dto.GroupId} id!");
+            }
+            Group group = _groupRepository.Find(x => x.Id == dto.GroupId, "Students");
+            if (group.Students.Count >= group.MaxStudentCount)
+            {
+                throw new RestException(System.Net.HttpStatusCode.BadRequest, "GroupId", $"{group.Name} group is full!");
             }
             student.FullName= dto.FullName;
             student.Age= dto.Age;

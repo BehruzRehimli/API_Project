@@ -43,6 +43,11 @@ namespace CourseAPIProject.Service.Implemantations
             {
                 throw new RestException(System.Net.HttpStatusCode.NotFound, $"Group can't find {id} id!");
             }
+            Group group=_groupRepository.Find(x=>x.Id==id,"Students");
+            if (group.Students.Count>0)
+            {
+                throw new RestException(System.Net.HttpStatusCode.BadRequest, "This group can't be delete. Because it have student!");
+            }
             _groupRepository.Remove(_groupRepository.Find(x => x.Id == id));
             _groupRepository.Commit();
         }
