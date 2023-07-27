@@ -1,0 +1,45 @@
+﻿@model StudentVM
+@{
+    var count = 0;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10">
+            <h1>Student</h1>
+            <div class="text-right mb-3">
+            <a asp-action="create" class="btn btn-outline-primary  my-3">Add Student</a>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Point</th>
+                        <th scope="col">Group Name</th>
+                        <th scope="col">Buttons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (StudentGetVM item in Model.Students)
+                    {
+                        count++;
+                        <tr>
+                            <th scope="row">@count</th>
+                            <td>@item.Fullname</td>
+                            <td>@item.Age</td>
+                            <td>@item.Point</td>
+                            <td>@item.Group.Name</td>
+                            <td>
+                                <a asp-action="edit" asp-route-id=@item.Id class="btn btn-outline-warning">Edit</a>
+                                <a asp-action="delete" asp-route-id=@item.Id class="btn btn-outline-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

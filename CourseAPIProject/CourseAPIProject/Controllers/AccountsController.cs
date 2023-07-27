@@ -45,7 +45,7 @@ namespace CourseAPIProject.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
-            AppUser admin =await _userManager.FindByNameAsync(dto.Usermane);
+            AppUser admin =await _userManager.FindByNameAsync(dto.Username);
             if (admin==null)
             {
                 return NotFound();

@@ -1,5 +1,6 @@
 ﻿using CourseAPIProject.UI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 
 namespace CourseAPIProject.UI.Controllers
@@ -10,6 +11,8 @@ namespace CourseAPIProject.UI.Controllers
         {
             using (HttpClient client= new HttpClient())
             {
+                var token = Request.Cookies["admin_token"];
+                client.DefaultRequestHeaders.Add(HeaderNames.Authorization, token);
                 using (var response = await client.GetAsync("https://localhost:7198/api/groups"))
                 {
                     if (response.IsSuccessStatusCode)
@@ -22,12 +25,21 @@ namespace CourseAPIProject.UI.Controllers
                          return View(vm);
 
                       }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        return RedirectToAction("login","account");
+                    }
                 }
             }
             return View("error");
         }
         public IActionResult Create()
         {
+            var token = Request.Cookies["admin_token"];
+            if (token==null)
+            {
+                return RedirectToAction("login", "account");
+            }
             return View();
         }
         [HttpPost]
@@ -39,6 +51,8 @@ namespace CourseAPIProject.UI.Controllers
             }
             using (HttpClient client = new HttpClient())
             {
+                var token = Request.Cookies["admin_token"];
+                client.DefaultRequestHeaders.Add(HeaderNames.Authorization, token);
                 StringContent requestContent = new StringContent(JsonConvert.SerializeObject(vm), System.Text.Encoding.UTF8, "application/json");
                 using (var response = await client.PostAsync("https://localhost:7198/api/groups",requestContent))
                 {
@@ -57,6 +71,10 @@ namespace CourseAPIProject.UI.Controllers
                         }
                         return View();
                     }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        return RedirectToAction("login", "account");
+                    }
                 }
             }
             return View("error");
@@ -65,6 +83,8 @@ namespace CourseAPIProject.UI.Controllers
         {
             using (HttpClient client = new HttpClient())
             {
+                var token = Request.Cookies["admin_token"];
+                client.DefaultRequestHeaders.Add(HeaderNames.Authorization, token);
                 using (var response = await client.GetAsync($"https://localhost:7198/api/groups/{id}"))
                 {
                     if (response.IsSuccessStatusCode)
@@ -73,7 +93,10 @@ namespace CourseAPIProject.UI.Controllers
                         var vm = JsonConvert.DeserializeObject<GroupEditVM>(responseContent);
                         return View(vm);
                     }
-
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        return RedirectToAction("login", "account");
+                    }
                 }
             }
             return View("error");
@@ -81,9 +104,14 @@ namespace CourseAPIProject.UI.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id,GroupEditVM vm)
         {
-            
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
             using (HttpClient client = new HttpClient())
             {
+                var token = Request.Cookies["admin_token"];
+                client.DefaultRequestHeaders.Add(HeaderNames.Authorization, token);
                 StringContent requestContent =new StringContent(JsonConvert.SerializeObject(vm),System.Text.Encoding.UTF8,"application/json");
                 using (var response = await client.PutAsync($"https://localhost:7198/api/groups/{id}",requestContent))
                 {
@@ -92,7 +120,7 @@ namespace CourseAPIProject.UI.Controllers
 
                         return RedirectToAction("index");
                     }
-                    if (response.StatusCode==System.Net.HttpStatusCode.BadRequest)
+                    else if (response.StatusCode==System.Net.HttpStatusCode.BadRequest)
                     {
                         var responseContent = await response.Content.ReadAsStringAsync();
                         var errorList = JsonConvert.DeserializeObject<ErrorVM>(responseContent);
@@ -103,7 +131,10 @@ namespace CourseAPIProject.UI.Controllers
                         }
                         return View();
                     }
-
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        return RedirectToAction("login", "account");
+                    }
                 }
             }
             return View("error");
@@ -112,15 +143,21 @@ namespace CourseAPIProject.UI.Controllers
         {
             using (HttpClient client = new HttpClient())
             {
+                var token = Request.Cookies["admin_token"];
+                client.DefaultRequestHeaders.Add(HeaderNames.Authorization, token);
                 using (var response = await client.DeleteAsync($"https://localhost:7198/api/groups/{id}"))
                 {
                     if (response.IsSuccessStatusCode)
                     {
                         return RedirectToAction("index");
                     }
-                    if (response.StatusCode==System.Net.HttpStatusCode.BadRequest)
+                    else if (response.StatusCode==System.Net.HttpStatusCode.BadRequest)
                     {
                         return RedirectToAction("index");
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        return RedirectToAction("login", "account");
                     }
 
                 }

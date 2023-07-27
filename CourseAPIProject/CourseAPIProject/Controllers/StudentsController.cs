@@ -40,7 +40,7 @@ namespace CourseAPIProject.Controllers
             _studentService.Edit(id, dto);
             return NoContent();
         }
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
             _studentService.Delete(id);
